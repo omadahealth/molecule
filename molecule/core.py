@@ -43,8 +43,8 @@ LOG = util.get_logger(__name__)
 
 class Molecule(object):
     def __init__(self, args):
-        self._env = os.environ.copy()
         self._args = args
+        self._env = os.environ.copy()
         self.config = config.Config()
 
     def main(self):

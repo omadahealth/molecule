@@ -39,6 +39,14 @@ class Config(object):
     def molecule_file(self):
         return PROJECT_CONFIG
 
+    @property
+    def verifier(self):
+        return self.verifier_options.get('name')
+
+    @property
+    def verifier_options(self):
+        return self.config.get('verifier')
+
     def populate_instance_names(self, platform):
         """
         Updates instances section of config with an additional key containing

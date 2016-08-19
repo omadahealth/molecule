@@ -27,6 +27,7 @@ import sh
 
 from molecule import util
 from molecule.command import base
+from molecule.verifier import testinfra
 
 LOG = util.get_logger(__name__)
 
@@ -114,9 +115,8 @@ class Init(base.Base):
                 'w') as f:
             f.write(t_playbook.render(role=role))
 
-        testinfra_path = os.path.join(
-            role_path,
-            self.molecule.config.config['molecule']['testinfra_dir'])
+        ti = testinfra.Testinfra(self.molecule)
+        testinfra_path = os.path.join(role_path, ti.testdir)
 
         if not os.path.isdir(testinfra_path):
             os.mkdir(testinfra_path)

@@ -20,9 +20,6 @@
 #   # directory to look for serverspec tests
 #   serverspec_dir: spec
 
-#   # directory to look for testinfra tests
-#   testinfra_dir: tests
-
 #   # template files to load when creating corresponding temporary files
 #   # this would be a good place to specify your own ansible.cfg template, for example
 #   vagrantfile_template: vagrantfile.j2
@@ -140,3 +137,6 @@ vagrant:
 #          auto_config: false
 #      options:
 #        append_platform_to_hostname: no
+
+verifier:
+  name: testinfra

@@ -61,6 +61,14 @@ def test_molecule_file(config_instance):
     assert 'molecule.yml' == config_instance.molecule_file
 
 
+def test_verifier(config_instance):
+    assert 'testinfra' == config_instance.verifier
+
+
+def test_verifier_options(config_instance):
+    assert {} == config_instance.verifier_options.get('options')
+
+
 def test_build_config_paths(config_instance):
     # Full path provided to ``state_file``.  Tested further in subsequent
     # tests.

@@ -216,7 +216,12 @@ def ansible_section_data():
                 'FOO': 'bar'
             }
         },
-        'testinfra': {}
+        'verifier': {
+            'name': 'testinfra',
+            'testdir': 'tests',
+            'options': {
+            }
+        }
     }
 
 

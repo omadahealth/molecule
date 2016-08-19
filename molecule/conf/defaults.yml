@@ -9,9 +9,6 @@ molecule:
   # directory to look for serverspec tests
   serverspec_dir: spec
 
-  # directory to look for testinfra tests
-  testinfra_dir: tests
-
   # directory in CWD to place all temp files, etc.
   molecule_dir: .molecule
 
@@ -89,4 +86,6 @@ ansible:
   config_file: ansible.cfg
   playbook: playbook.yml
 
-testinfra: {}
+verifier:
+  name: testinfra
+  options: {}

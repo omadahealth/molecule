@@ -33,20 +33,15 @@ LOG = util.get_logger(__name__)
 class Testinfra(base.Base):
     def __init__(self, molecule):
         super(Testinfra, self).__init__(molecule)
-        self._testinfra_dir = molecule.config.config['molecule'][
-            'testinfra_dir']
+        self._options = self._get_options()
+
+    @property
+    def testdir(self):
+        return self._options.get('testdir')
 
     def execute(self, exit=True):
-        ansible = ansible_playbook.AnsiblePlaybook(
-            self._molecule.config.config['ansible'],
-            _env=self._molecule._env)
-
-        testinfra_options = util.merge_dicts(
-            self._molecule.driver.testinfra_args,
-            self._molecule.config.config['testinfra'])
-        testinfra_options['env'] = ansible.env
-        testinfra_options['debug'] = self._molecule._args.get('--debug', False)
-        testinfra_options['sudo'] = self._molecule._args.get('--sudo', False)
+        options = self._options
+        options = options.get('options')
 
         tests_glob = self._get_tests()
         if len(tests_glob) > 0:
@@ -75,8 +70,15 @@ class Testinfra(base.Base):
         kwargs['_out'] = out
         kwargs['_err'] = err
 
+<<<<<<< 427f6ba9b9a4d9a4d3dd1b289f8b4e50a141d3a9
         msg = 'Executing testinfra tests found in {}/.'.format(
             self._testinfra_dir)
+=======
+        if 'HOME' not in kwargs['_env']:
+            kwargs['_env']['HOME'] = os.path.expanduser('~')
+
+        msg = 'Executing testinfra tests found in {}/.'.format(self.testdir)
+>>>>>>> Created a verify section of the config
         util.print_info(msg)
 
         return sh.testinfra(tests, **kwargs)
@@ -97,6 +99,31 @@ class Testinfra(base.Base):
         return sh.flake8(tests)
 
     def _get_tests(self):
-        tests = '{}/test_*.py'.format(self._testinfra_dir)
+        tests = '{}/test_*.py'.format(self.testdir)
 
         return glob.glob(tests)
+
+    def _get_options(self):
+        return util.merge_dicts(self._get_default_options(),
+                                self._molecule.config.verifier_options)
+
+    def _get_default_options(self):
+        m = self._molecule
+        mc = m.config.config['ansible']
+        ansible = ansible_playbook.AnsiblePlaybook(mc, _env=m._env)
+
+        try:
+            dd = self._molecule.driver.testinfra_args
+        except AttributeError:
+            dd = {}
+        defaults = {
+            'testdir': 'tests',
+            'options': {
+                'env': ansible.env,
+                'debug': m._args.get('--debug', False),
+                'sudo': m._args.get('--sudo', False)
+            }
+        }
+        defaults['options'].update(dd)
+
+        return defaults
