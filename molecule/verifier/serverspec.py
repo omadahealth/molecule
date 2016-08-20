@@ -31,18 +31,20 @@ LOG = util.get_logger(__name__)
 class Serverspec(base.Base):
     def __init__(self, molecule):
         super(Serverspec, self).__init__(molecule)
-        self._serverspec_dir = molecule.config.config['molecule'][
-            'serverspec_dir']
+        self._options = self._get_options()
         self._rakefile = molecule.config.config['molecule']['rakefile_file']
 
+    @property
+    def testdir(self):
+        return self._options.get('testdir')
+
     def execute(self):
-        serverspec_options = self._molecule.driver.serverspec_args
-        serverspec_options['debug'] = self._molecule._args.get('--debug',
-                                                               False)
+        options = self._options
+        options = options.get('options')
 
         if self._get_tests():
-            self._rubocop(self._serverspec_dir, **serverspec_options)
-            self._rake(self._rakefile, **serverspec_options)
+            self._rubocop(self.testdir, **options)
+            self._rake(self._rakefile, **options)
 
     def _rake(self,
               rakefile,
@@ -67,7 +69,7 @@ class Serverspec(base.Base):
                   'rakefile': rakefile}
 
         msg = 'Executing serverspec tests found in {}/.'.format(
-            self._serverspec_dir)
+            self.testdir)
         util.print_info(msg)
 
         return sh.rake(**kwargs)
@@ -100,4 +102,23 @@ class Serverspec(base.Base):
         return sh.rubocop(match, **kwargs)
 
     def _get_tests(self):
-        return os.path.isdir(self._serverspec_dir)
+        return os.path.isdir(self.testdir)
+
+    def _get_options(self):
+        return util.merge_dicts(self._get_default_options(),
+                                self._molecule.config.verifier_options)
+
+    def _get_default_options(self):
+        try:
+            dd = self._molecule.driver.serverspec_args
+        except AttributeError:
+            dd = {}
+        defaults = {
+            'testdir': 'spec',
+            'options': {
+                'debug': self._molecule._args.get('--debug', False)
+            }
+        }
+        defaults['options'].update(dd)
+
+        return defaults

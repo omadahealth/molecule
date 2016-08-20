@@ -67,6 +67,8 @@ def test_get_default_options(molecule_instance, testinfra_instance):
 
 
 def test_execute(mocked_test_verifier, mocked_get_tests, testinfra_instance):
+    molecule_instance._env = {'FOO': 'BAR'}
+    mocked_test_stat.return_value = ['/test/1', '/test/2']
     testinfra_instance.execute()
 
     mocked_code_verifier.assert_called_once_with(['/test/1', '/test/2'])
@@ -96,6 +98,7 @@ def test_execute_overriden_options(mocker, molecule_instance,
         'molecule.verifier.testinfra.Testinfra._get_tests')
     mocked_testinfra = mocker.patch(
         'molecule.verifier.testinfra.Testinfra._testinfra')
+
     mocked_test_stat.return_value = ['/test/1', '/test/2']
     molecule_instance.config.config['verifier']['options'] = {
         'sudo': True,
