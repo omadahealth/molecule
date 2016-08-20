@@ -42,6 +42,7 @@ def mocked_test_verifier(mocker):
 def mocked_get_tests(mocker):
     return mocker.patch('molecule.verifier.testinfra.Testinfra._get_tests')
 
+
 def test_testdir(testinfra_instance):
     assert 'tests' == testinfra_instance.testdir
 
@@ -66,9 +67,10 @@ def test_get_default_options(molecule_instance, testinfra_instance):
     assert 'true' == resp['env']['ANSIBLE_FORCE_COLOR']
 
 
-def test_execute(mocked_test_verifier, mocked_get_tests, testinfra_instance):
+def test_execute(molecule_instance, mocked_test_verifier, mocked_get_tests,
+                 testinfra_instance):
     molecule_instance._env = {'FOO': 'BAR'}
-    mocked_test_stat.return_value = ['/test/1', '/test/2']
+    mocked_get_tests.return_value = ['/test/1', '/test/2']
     testinfra_instance.execute()
 
     mocked_code_verifier.assert_called_once_with(['/test/1', '/test/2'])
@@ -92,14 +94,10 @@ def test_execute(mocked_test_verifier, mocked_get_tests, testinfra_instance):
             '-o ControlPersist=60s') == ca['env']['ANSIBLE_SSH_ARGS']
 
 
-def test_execute_overriden_options(mocker, molecule_instance,
-                                   testinfra_instance):
-    mocked_test_stat = mocker.patch(
-        'molecule.verifier.testinfra.Testinfra._get_tests')
-    mocked_testinfra = mocker.patch(
-        'molecule.verifier.testinfra.Testinfra._testinfra')
+def test_execute_overriden_options(molecule_instance, mocked_test_verifier,
+                                   mocked_get_tests, testinfra_instance):
 
-    mocked_test_stat.return_value = ['/test/1', '/test/2']
+    mocked_get_tests.return_value = ['/test/1', '/test/2']
     molecule_instance.config.config['verifier']['options'] = {
         'sudo': True,
         'debug': True
@@ -107,7 +105,7 @@ def test_execute_overriden_options(mocker, molecule_instance,
     testinfra_instance._options = testinfra_instance._get_options()
     testinfra_instance.execute()
 
-    ca = mocked_testinfra.call_args[1]
+    ca = mocked_test_verifier.call_args[1]
     assert ca['debug']
     assert ca['sudo']
 
