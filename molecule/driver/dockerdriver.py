@@ -173,7 +173,7 @@ class DockerDriver(basedriver.BaseDriver):
         for container in self.instances:
             name = container.get('name')
             if container.get('created'):
-                cd = self._docker.containers(filters={'name': name})[0]
+                cd = self._docker.containers(all=True, filters={'name': name})[0]
                 status_list.append(
                     Status(
                         name=name,

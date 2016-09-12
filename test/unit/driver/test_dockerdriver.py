@@ -141,6 +141,13 @@ def test_status(docker_instance):
     assert 'docker' in docker_instance.status()[1].provider
 
 
+def test_status_when_stopped(docker_instance):
+    docker_instance.up()
+    docker_instance._docker.stop(container='test1')
+
+    assert 'Exited' in docker_instance.status()[0].state
+
+
 def test_port_bindings(docker_instance):
     docker_instance.up()
     ports = sorted(
